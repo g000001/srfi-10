@@ -14,7 +14,7 @@
   (setf (get symbol 'reader-ctor)
         proc))
 
-(defun lookup (tag stream &aux it)
+(defun lookup (tag &aux it)
   (cond ((and (consp tag)
               (eq 'cl:lambda (car tag)))
          ;; lambda
@@ -24,21 +24,19 @@
          tag)
         ((setq it (get tag 'reader-ctor))
          it)
-        ('T (error stream "The reader-ctor ~S is undefined." tag))))
+        ('T (error "The reader-ctor ~S is undefined." tag))))
 
 (test lookup
-  (with-output-to-string (out)
-    (is (eq 'cl:list (lookup 'cl:list out))))
-  (with-output-to-string (out)
-    (is (equal '(lambda (x) x)
-               (lookup '(lambda (x) x) out))))
+  (is (eq 'cl:list (lookup 'cl:list)))
+  (is (equal '(lambda (x) x)
+             (lookup '(lambda (x) x))))
   (with-output-to-string (out)
     (let ((sym (gensym)))
       (define-reader-ctor sym #'cl:values)
-      (is (eq #'cl:values (lookup sym out)))))
+      (is (eq #'cl:values (lookup sym)))))
   (with-output-to-string (out)
     (signals (error)
-      (lookup (gensym) out))))
+      (lookup (gensym)))))
 
 (defun read-time-application (stream sub-char numarg)
   (when numarg
@@ -46,8 +44,8 @@
   (let ((token (read stream t nil t)))
     (unless *read-suppress*
       (unless *read-eval*
-        (error stream "can't read #, while *READ-EVAL* is NIL"))
-      (apply (lookup (car token) stream)
+        (error "can't read #, while *READ-EVAL* is NIL"))
+      (apply (lookup (car token))
              (cdr token)))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
