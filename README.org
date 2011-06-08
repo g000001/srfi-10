@@ -1,1 +1,21 @@
-This is the stub README.org for the "srfi-10" project.
+* SRFI-10: #, external form
+
+#+BEGIN_SRC lisp
+(enable-read-time-application)
+#+END_SRC
+
+#+BEGIN_SRC lisp
+(disable-read-time-application)
+#+END_SRC
+
+Example:
+#+BEGIN_SRC lisp
+(define-reader-ctor '+ #'cl:+)
+
+#,(+ 3 #,(+ #,(+ 3 3) 3))
+;=> 12
+#+END_SRC
+
+
+
+

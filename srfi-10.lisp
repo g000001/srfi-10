@@ -14,22 +14,14 @@
   (setf (get symbol 'reader-ctor)
         proc))
 
-(defun lookup (tag &aux it)
-  (cond ((and (consp tag)
-              (eq 'cl:lambda (car tag)))
-         ;; lambda
-         tag)
-        ((fboundp tag)
-         ;; symbol-function
-         tag)
-        ((setq it (get tag 'reader-ctor))
-         it)
-        ('T (error "The reader-ctor ~S is undefined." tag))))
+(defun undefine-reader-ctor (symbol)
+  (setf (get symbol 'reader-ctor) nil))
+
+(defun lookup (tag)
+  (or (get tag 'reader-ctor)
+      (error "The reader-ctor ~S is undefined." tag)))
 
 (test lookup
-  (is (eq 'cl:list (lookup 'cl:list)))
-  (is (equal '(lambda (x) x)
-             (lookup '(lambda (x) x))))
   (with-output-to-string (out)
     (let ((sym (gensym)))
       (define-reader-ctor sym #'cl:values)
@@ -78,6 +70,8 @@
         (*restore-read-time-application* nil)
         (*readtable* (copy-readtable nil)))
     (enable-read-time-application)
+    (define-reader-ctor '+ #'cl:+)
+    (define-reader-ctor 'list #'cl:list)
     ;;
     (is (= (read-from-string "#,(+ 1 1)")
            2))
@@ -101,7 +95,9 @@
     (let ((sym (gentemp)))
       (signals (error)
         (read-from-string (format nil "#,(~S 1)" sym)))
-      (unintern sym))))
+      (unintern sym)))
+  (undefine-reader-ctor '+)
+  (undefine-reader-ctor 'list))
 
 (test side-effects-check
   (is-false *original-readtable*)
@@ -111,17 +107,3 @@
   (disable-read-time-application)
   (is-false *original-readtable*)
   (is-false *restore-read-time-application*))
-
-
-#|(progn
-  (enable-read-time-application)
-  (define-reader-ctor 'u8 #'srfi-4:u8vector))|#
-
-
-#|(progn
-  #,(u8 1 2 3 4))|#
-
-
-
-
-
