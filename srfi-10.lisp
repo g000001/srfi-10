@@ -1,6 +1,6 @@
 ;;;; srfi-10.lisp
 
-(cl:in-package :srfi-10-internal)
+(cl:in-package "https://github.com/g000001/srfi-10#internals")
 
 (def-suite srfi-10)
 

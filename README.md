@@ -1,20 +1,24 @@
-* SRFI-10: #, external form
+# SRFI-10 for CL: #, external form
 
-#+BEGIN_SRC lisp
+* https://srfi.schemers.org/srfi-10/
+* License: Unlicense
+
+```cl
 (enable-read-time-application)
-#+END_SRC
+```
 
-#+BEGIN_SRC lisp
+```cl
 (disable-read-time-application)
-#+END_SRC
+```
 
 Example:
-#+BEGIN_SRC lisp
+
+```cl
 (define-reader-ctor '+ #'cl:+)
 
 #,(+ 3 #,(+ #,(+ 3 3) 3))
 ;=> 12
-#+END_SRC
+```
 
 
 
